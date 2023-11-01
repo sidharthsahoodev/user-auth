@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 import org.example.response.Command;
+import org.example.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -69,6 +70,19 @@ public class UserServiceImpl implements UserService{
         }
 
         return new Command("Validation successful", true);
+    }
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Override
+    public Command login(String email, String password) {
+        User user = userRepository.findByEmail(email);
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+            String jwtToken = jwtUtil.generateToken(email);
+            return new Command("Login successful", true, jwtToken);
+        }
+        return new Command("Invalid credentials", false);
     }
 
 

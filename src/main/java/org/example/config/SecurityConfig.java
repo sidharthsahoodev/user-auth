@@ -14,7 +14,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable() // Disables CSRF protection; use with caution
                 .authorizeRequests()
-                .antMatchers("/api/user/signup", "/error").permitAll() // Permit all requests to these endpoints
+                .antMatchers("/api/user/*", "/error").permitAll() // Permit all requests to these endpoints
                 .anyRequest().authenticated(); // All other requests need to be authenticated
     }
 }

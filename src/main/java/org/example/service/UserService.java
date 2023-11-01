@@ -8,4 +8,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public interface UserService {
 
     Command signUp(String email, String password);
+
+    Command login(String email, String password);
 }
