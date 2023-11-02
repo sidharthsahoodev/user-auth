@@ -1,4 +1,5 @@
 package org.example.controller;
+import org.example.dto.JwtRequestDto;
 import org.example.dto.UserAuthDto;
 import org.example.response.Command;
 import org.example.service.UserService;
@@ -23,6 +24,14 @@ public class UserAuthController {
     @PostMapping("/login")
     public Command login(@Valid @RequestBody UserAuthDto loginRequestDto) {
         return userService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+    }
+    @PostMapping("/verifyJWT")
+    public Command verifyJWT(@Valid @RequestBody JwtRequestDto jwtRequestDto) {
+        return userService.verifyJwt(jwtRequestDto.getJwtToken());
+    }
+    @PostMapping("/refreshJWT")
+    public Command refreshJWT(@Valid @RequestBody JwtRequestDto jwtRequestDto) {
+        return userService.refreshJwt(jwtRequestDto.getJwtToken());
     }
 
 }

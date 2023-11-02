@@ -1,5 +1,6 @@
 package org.example.service;
 
+import io.jsonwebtoken.Claims;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 import org.example.response.Command;
@@ -20,6 +21,10 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+
     @Override
     public Command signUp(String email, String password) {
 //
@@ -27,8 +32,6 @@ public class UserServiceImpl implements UserService{
 //        if (!validationCommand.isSuccessful()) {
 //            return validationCommand;
 //        }
-
-
         User existingUser = userRepository.findByEmail(email);
         if (existingUser != null) {
             return new Command("User already exists", false);
@@ -72,9 +75,6 @@ public class UserServiceImpl implements UserService{
         return new Command("Validation successful", true);
     }
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
     @Override
     public Command login(String email, String password) {
         User user = userRepository.findByEmail(email);
@@ -84,6 +84,27 @@ public class UserServiceImpl implements UserService{
         }
         return new Command("Invalid credentials", false);
     }
-
+    public Command verifyJwt(String jwtToken) {
+        if (jwtUtil.validateToken(jwtToken)) {
+            Claims claims = jwtUtil.extractClaims(jwtToken);
+            String email = claims.getSubject();
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                return new Command("Token valid", true);
+            } else {
+                return new Command("User not found", false);
+            }
+        } else {
+            return new Command("Token invalid or expired", false);
+        }
+    }
+    public Command refreshJwt(String oldJwtToken) {
+        if (jwtUtil.validateToken(oldJwtToken)) {
+            String newJwtToken = jwtUtil.refreshToken(oldJwtToken);
+            return new Command("Token refreshed", true, newJwtToken);
+        } else {
+            return new Command("Token invalid or expired. LOGOUT", false, null);
+        }
+    }
 
 }

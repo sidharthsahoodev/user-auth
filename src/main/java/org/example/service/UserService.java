@@ -10,4 +10,8 @@ public interface UserService {
     Command signUp(String email, String password);
 
     Command login(String email, String password);
+
+    Command verifyJwt(String jwtToken);
+
+    Command refreshJwt(String jwtToken);
 }
