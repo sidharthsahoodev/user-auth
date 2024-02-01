@@ -10,10 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 @Service
 public class UserServiceImpl implements UserService{
+    private ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     @Autowired
     private UserRepository userRepository;
@@ -27,11 +30,6 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Command signUp(String email, String password) {
-//
-//        Command validationCommand = validateEmailAndPassword(email, password);
-//        if (!validationCommand.isSuccessful()) {
-//            return validationCommand;
-//        }
         User existingUser = userRepository.findByEmail(email);
         if (existingUser != null) {
             return new Command("User already exists", false);
@@ -39,13 +37,11 @@ public class UserServiceImpl implements UserService{
 
         User user = new User();
         user.setEmail(email);
-    //    user.setPassword(password);
-
-        // Hash the password before saving it
         String hashedPassword = passwordEncoder.encode(password);
         user.setPassword(hashedPassword);
 
-        userRepository.save(user);
+        //userRepository.save(user);
+        executorService.submit(() -> userRepository.save(user));
 
         return new Command("User successfully registered", true);
     }
